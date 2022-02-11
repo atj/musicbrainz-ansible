@@ -1,0 +1,13 @@
+---
+__openssh_sshd_host_key:
+  - /etc/ssh/ssh_host_rsa_key
+  - /etc/ssh/ssh_host_ecdsa_key
+__openssh_sshd_ciphers:
+  - aes256-ctr
+  - aes192-ctr
+  - aes128-ctr
+__openssh_sshd_kex_algorithms:
+  - diffie-hellman-group-exchange-sha256
+__openssh_sshd_macs:
+  - hmac-sha2-512
+  - hmac-sha2-256

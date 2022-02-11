@@ -1,0 +1,19 @@
+---
+apt_repositories:
+  - "deb https://mirror.hetzner.com/ubuntu/packages {{ ansible_distribution_release }} main restricted universe multiverse"
+  - "deb https://mirror.hetzner.com/ubuntu/packages {{ ansible_distribution_release }}-updates main restricted universe multiverse"
+  - "deb https://mirror.hetzner.com/ubuntu/packages {{ ansible_distribution_release }}-backports main restricted universe multiverse"
+  - "deb https://mirror.hetzner.com/ubuntu/packages {{ ansible_distribution_release }}-security main restricted universe multiverse"
+apt_packages:
+  - man
+  - vim
+  - inxi
+  - dmidecode
+  - dnsutils
+  - file
+  - hddtemp
+  - lm-sensors
+  - usbutils
+  - bash-completion
+  - htop
+  - git

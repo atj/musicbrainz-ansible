@@ -1,0 +1,9 @@
+- name: manage motd
+  template: src=motd.j2 dest=/etc/motd
+  when: common_manage_motd | bool
+
+- import_tasks: sysctl.yml
+  tags: [ 'common::sysctl' ]
+
+- import_tasks: resources.yml
+  tags: [ 'common::resources' ]

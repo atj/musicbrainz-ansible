@@ -1,0 +1,62 @@
+- name: create resource paths
+  file:
+    path:    '{{ item.path    | d(item.dest) }}'
+    state:   '{{ item.state   | d("directory") }}'
+    src:     '{{ item.src     | d(omit) }}'
+    owner:   '{{ item.owner   | d(omit) }}'
+    group:   '{{ item.group   | d(omit) }}'
+    mode:    '{{ item.mode    | d(omit) }}'
+    force:   '{{ item.force   | d(omit) }}'
+    recurse: '{{ item.recurse | d(omit) }}'
+  with_flattened:
+    - '{{ common_resources }}'
+    - '{{ common_group_resources }}'
+    - '{{ common_host_resources }}'
+  when: (item.state|d('directory') in [ 'directory', 'link', 'touch' ] and
+         (item.path|d() or item.dest|d()))
+  loop_control:
+    label: "{{ item.path | d(item.dest) }}"
+
+- name: create parent resource directories
+  file:
+    dest:    '{{ (item.dest          | d(item.path)) | dirname }}'
+    force:   '{{ item.force          | d(omit) }}'
+    mode:    '{{ item.parent_mode    | d(omit) }}'
+    recurse: '{{ item.parent_recurse | d(omit) }}'
+    state:   'directory'
+  with_flattened:
+    - '{{ common_resources }}'
+    - '{{ common_group_resources }}'
+    - '{{ common_host_resources }}'
+  when: (item.state|d('present') in [ 'present', 'file' ] and item.parent|d(True) and
+         (item.dest|d() or item.path|d()) and (item.src|d() or item.content|d()))
+  loop_control:
+    label: "{{ item.dest | d(item.path) }}: {{ (item.path | d(item.dest)) | dirname }}"
+
+- name: create or update resources
+  copy:
+    dest:    '{{ item.dest    | d(item.path) }}'
+    src:     '{{ item.src     | d(omit) }}'
+    content: '{{ item.content | d(omit) }}'
+    mode:    '{{ item.mode    | d(omit) }}'
+    force:   '{{ item.force   | d(omit) }}'
+  with_flattened:
+    - '{{ common_resources }}'
+    - '{{ common_group_resources }}'
+    - '{{ common_host_resources }}'
+  when: (item.state|d('present') in [ 'present', 'file' ] and
+         (item.dest|d() or item.path|d()) and (item.src|d() or item.content|d()))
+  loop_control:
+    label: "{{ item.dest | d(item.path)}}"
+
+- name: delete resources if requested
+  file:
+    path: '{{ item.path | d(item.dest) }}'
+    state: 'absent'
+  with_flattened:
+    - '{{ common_resources }}'
+    - '{{ common_group_resources }}'
+    - '{{ common_host_resources }}'
+  when: (item.state|d('present') == 'absent' and (item.path|d() or item.dest|d()))
+  loop_control:
+    label: "{{ item.path | d(item.dest) }}"

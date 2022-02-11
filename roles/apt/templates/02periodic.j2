@@ -1,0 +1,10 @@
+# {{ ansible_managed }}
+
+APT::Periodic::Enable "{{ apt_periodic_enable|ternary(1, 0) }}";
+APT::Periodic::MaxAge "{{ apt_periodic_max_age }}";
+APT::Periodic::MinAge "{{ apt_periodic_min_age }}";
+APT::Periodic::MaxSize "{{ apt_periodic_max_size }}";
+APT::Periodic::Download-Upgradeable-Packages "{{ apt_periodic_download_upgradeable_packages }}";
+APT::Periodic::AutocleanInterval "{{ apt_periodic_autoclean_interval }}";
+APT::Periodic::CleanInterval "{{ apt_periodic_clean_interval }}";
+APT::Periodic::Verbose "{{ apt_periodic_verbose }}";

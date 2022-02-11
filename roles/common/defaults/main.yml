@@ -1,0 +1,13 @@
+---
+common_manage_motd: false
+common_motd: ''
+
+common_default_sysctl_file: /etc/sysctl.d/99-ansible.conf
+common_default_sysctl_set: true
+common_sysctl: []
+common_group_sysctl: []
+common_host_sysctl: []
+
+common_resources: []
+common_group_resources: []
+common_host_resources: []

@@ -1,0 +1,29 @@
+openssh_sshd_port:
+  - 22
+openssh_sshd_protocol: 2
+openssh_sshd_listen_address: []
+openssh_sshd_tcp_keep_alive: yes
+openssh_sshd_client_alive_interval: 120
+openssh_sshd_syslog_facility: AUTH
+openssh_sshd_log_level: INFO
+openssh_sshd_use_pam: yes
+openssh_sshd_permit_root_login: without-password
+openssh_sshd_strict_modes: yes
+openssh_sshd_pubkey_authentication: yes
+openssh_sshd_accept_env: 'LANG LC_*'
+openssh_sshd_print_motd: no
+openssh_sshd_ignore_rhosts: yes
+openssh_sshd_hostbased_authentication: no
+openssh_sshd_permit_empty_passwords: no
+openssh_sshd_challenge_response_authentication: no
+openssh_sshd_password_authentication: no
+openssh_sshd_use_dns: no
+openssh_sshd_allow_users: []
+openssh_sshd_deny_users: []
+openssh_sshd_allow_groups: []
+openssh_sshd_deny_groups: []
+openssh_sshd_subsystem: 'sftp /usr/lib/openssh/sftp-server'
+
+openssh_sshd_config: ''
+openssh_sshd_group_config: ''
+openssh_sshd_host_config: ''

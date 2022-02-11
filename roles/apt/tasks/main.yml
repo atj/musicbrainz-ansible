@@ -1,0 +1,74 @@
+- name: install unattended-upgrades
+  apt:
+    name:
+      - unattended-upgrades
+
+- name: remove apt.conf and sources.list
+  file:
+    path: "/etc/apt/{{ item }}"
+    state: absent
+  with_items:
+    - apt.conf
+    - sources.list
+
+- name: divert unattended-upgrade apt configuration files
+  command: >
+    dpkg-divert --quiet --local
+    --divert /etc/apt/apt.conf.d/{{ item }}.dpkg-divert
+    --rename /etc/apt/apt.conf.d/{{ item }}
+  args:
+    creates: "/etc/apt/apt.conf.d/{{ item }}.dpkg-divert"
+  with_items:
+    - 20auto-upgrades
+    - 50unattended-upgrades
+
+- name: install apt configuration files
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/apt/apt.conf.d/{{ item }}"
+  with_items:
+    - 02periodic
+    - 20auto-upgrades
+    - 50unattended-upgrades
+    - 99proxy
+
+- name: configure apt repositories
+  apt_repository:
+    repo: "{{ item.repo if item is mapping else item }}"
+    state: "{{ item.state|d('present') }}"
+    filename: "{{ item.filename|d(omit) }}"
+    codename: "{{ item.codename|d(omit) }}"
+    mode: "{{ item.mode|d(omit) }}"
+    validate_certs: "{{ item.validate_certs|d(omit) }}"
+  with_flattened:
+    - "{{ apt_repositories }}"
+    - "{{ apt_group_repositories }}"
+    - "{{ apt_host_repositories }}"
+
+- name: update apt cache
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: install packages
+  apt:
+    name: "{{ packages|flatten }}"
+    state: present
+  vars:
+    packages:
+      - "{{ apt_packages|reject('mapping')|list }}"
+      - "{{ apt_group_packages|reject('mapping')|list }}"
+      - "{{ apt_host_packages|reject('mapping')|list }}"
+
+- name: install packages with options
+  apt:
+    name: "{{ item.name }}"
+    state: "{{ item.state |d('present') }}"
+    default_release: "{{ item.default_release|d(omit) }}"
+    force: "{{ item.force|d(omit) }}"
+    install_recommends: "{{ item.install_recommends|d(omit) }}"
+    purge: "{{ item.purge|d(omit) }}"
+  with_flattened:
+    - "{{ apt_packages|select('mapping')|list }}"
+    - "{{ apt_group_packages|select('mapping')|list }}"
+    - "{{ apt_host_packages|select('mapping')|list }}"

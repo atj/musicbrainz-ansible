@@ -1,0 +1,64 @@
+- name: install openssh-server
+  apt: name=openssh-server state=present
+
+- name: check openssh version
+  command: dpkg-query -f '${Version}\n' -W openssh-server
+  register: __openssh_version
+  changed_when: false
+  check_mode: no
+
+# OpenSSH versions on Debian are prefixed with '1:' eg. 1:7.9p1-10+deb10u2
+- set_fact: openssh_version={{ __openssh_version.stdout|replace('1:', '', 1) }}
+
+- name: check openssh version is supported
+  fail:
+    msg: "OpenSSH versions older than 5.3 are not supported by this role"
+  when: openssh_version is version('5.3', '<')
+
+- name: include version specific variables
+  include_vars: openssh-6.7.yml
+  when: openssh_version is version('6.7', '>=')
+
+- name: include version specific variables
+  include_vars: openssh-5.7.yml
+  when:
+    - openssh_version is version('5.3', '>=')
+    - openssh_version is version('6.7', '<')
+
+- name: define openssh_sshd_host_key
+  set_fact:
+    openssh_sshd_host_key: "{{ __openssh_sshd_host_key }}"
+  when: openssh_sshd_host_key is not defined
+
+- name: define openssh_sshd_ciphers
+  set_fact:
+    openssh_sshd_ciphers: "{{ __openssh_sshd_ciphers }}"
+  when: openssh_sshd_ciphers is not defined
+
+- name: define openssh_sshd_kex_algorithms
+  set_fact:
+    openssh_sshd_kex_algorithms: "{{ __openssh_sshd_kex_algorithms }}"
+  when: openssh_sshd_kex_algorithms is not defined
+
+- name: define openssh_sshd_macs
+  set_fact:
+    openssh_sshd_macs: "{{ __openssh_sshd_macs }}"
+  when: openssh_sshd_macs is not defined
+
+- name: divert sshd configuration file
+  command: >
+    dpkg-divert --quiet --local --divert
+    /etc/ssh/sshd_config.dpkg-divert
+    --rename /etc/ssh/sshd_config
+  args:
+    creates: /etc/ssh/sshd_config.dpkg-divert
+
+- name: install sshd configuration
+  template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: 0640
+    validate: /usr/sbin/sshd -t -f %s
+  notify: restart sshd

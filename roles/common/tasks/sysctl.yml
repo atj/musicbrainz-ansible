@@ -1,0 +1,13 @@
+- name: manage sysctl entries
+  sysctl:
+    name:           "{{ item.name }}"
+    value:          "{{ item.value | d(omit) }}"
+    state:          "{{ item.state | d('present') }}"
+    sysctl_file:    "{{ item.file | d(common_default_sysctl_file) }}"
+    sysctl_set:     "{{ item.set | d(common_default_sysctl_set) }}"
+    reload:         "{{ item.reload | d(omit) }}"
+    ignore_errors:  "{{ item.ignore_errors | d(omit) }}"
+  with_flattened:
+    - "{{ common_sysctl }}"
+    - "{{ common_group_sysctl }}"
+    - "{{ common_host_sysctl }}"

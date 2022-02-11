@@ -1,0 +1,95 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+# {{ ansible_managed }}
+
+{% for port in openssh_sshd_port %}
+Port {{ port }}
+{% endfor %}
+Protocol {{ openssh_sshd_protocol }}
+{% for address in openssh_sshd_listen_address %}
+ListenAddress {{ address }}
+{% endfor %}
+{% if openssh_sshd_tcp_keep_alive is defined %}
+TCPKeepAlive {{ openssh_sshd_tcp_keep_alive | bool | ternary('yes', 'no') }}
+{% endif %}
+{% if openssh_sshd_client_alive_interval is defined and openssh_sshd_client_alive_interval %}
+ClientAliveInterval {{ openssh_sshd_client_alive_interval }}
+{% endif %}
+{% if openssh_sshd_syslog_facility is defined and openssh_sshd_syslog_facility %}
+SyslogFacility {{ openssh_sshd_syslog_facility }}
+{% endif %}
+{% if openssh_sshd_log_level is defined and openssh_sshd_log_level %}
+LogLevel {{ openssh_sshd_log_level }}
+{% endif %}
+{% if openssh_sshd_use_pam is defined %}
+UsePAM {{ openssh_sshd_use_pam | bool | ternary('yes', 'no') }}
+{% endif %}
+{% if openssh_sshd_permit_root_login is defined and openssh_sshd_permit_root_login %}
+PermitRootLogin {{ openssh_sshd_permit_root_login }}
+{% endif %}
+{% if openssh_sshd_strict_modes is defined %}
+StrictModes {{ openssh_sshd_strict_modes | bool | ternary('yes', 'no') }}
+{% endif %}
+{% if openssh_sshd_pubkey_authentication is defined %}
+PubkeyAuthentication {{ openssh_sshd_pubkey_authentication | bool | ternary('yes', 'no') }}
+{% endif %}
+{% if openssh_sshd_accept_env is defined and openssh_sshd_accept_env %}
+AcceptEnv {{ openssh_sshd_accept_env }}
+{% endif %}
+{% if openssh_sshd_print_motd is defined %}
+PrintMotd {{ openssh_sshd_print_motd | bool | ternary('yes', 'no') }}
+{% endif %}
+{% if openssh_sshd_ignore_rhosts is defined %}
+IgnoreRhosts {{ openssh_sshd_ignore_rhosts | bool | ternary('yes', 'no') }}
+{% endif %}
+{% if openssh_sshd_hostbased_authentication is defined %}
+HostbasedAuthentication {{ openssh_sshd_hostbased_authentication | bool | ternary('yes', 'no') }}
+{% endif %}
+{% if openssh_sshd_permit_empty_passwords is defined %}
+PermitEmptyPasswords {{ openssh_sshd_permit_empty_passwords | bool | ternary('yes', 'no') }}
+{% endif %}
+{% if openssh_sshd_challenge_response_authentication is defined %}
+ChallengeResponseAuthentication {{ openssh_sshd_challenge_response_authentication | bool | ternary('yes', 'no') }}
+{% endif %}
+{% if openssh_sshd_password_authentication is defined %}
+PasswordAuthentication {{ openssh_sshd_password_authentication | bool | ternary('yes', 'no') }}
+{% endif %}
+{% if openssh_sshd_use_dns is defined %}
+UseDNS {{ openssh_sshd_use_dns | bool | ternary('yes', 'no') }}
+{% endif %}
+{% for host_key in openssh_sshd_host_key %}
+HostKey {{ host_key }}
+{% endfor %}
+{% if openssh_sshd_ciphers is defined and openssh_sshd_ciphers %}
+Ciphers {{ openssh_sshd_ciphers | join(',') }}
+{% endif %}
+{% if openssh_sshd_kex_algorithms is defined and openssh_sshd_kex_algorithms %}
+KexAlgorithms {{ openssh_sshd_kex_algorithms | join(',') }}
+{% endif %}
+{% if openssh_sshd_macs is defined and openssh_sshd_macs %}
+MACs {{ openssh_sshd_macs | join(',') }}
+{% endif %}
+{% if openssh_sshd_allow_users is defined and openssh_sshd_allow_users %}
+AllowUsers {{ openssh_sshd_allow_users | join(' ') }}
+{% endif %}
+{% if openssh_sshd_deny_users is defined and openssh_sshd_deny_users %}
+DenyUsers {{ openssh_sshd_deny_users | join(' ') }}
+{% endif %}
+{% if openssh_sshd_allow_groups is defined and openssh_sshd_allow_groups %}
+AllowGroups {{ openssh_sshd_allow_groups | join(' ') }}
+{% endif %}
+{% if openssh_sshd_deny_groups is defined and openssh_sshd_deny_groups %}
+DenyGroups {{ openssh_sshd_deny_groups | join(' ') }}
+{% endif %}
+{% if openssh_sshd_subsystem is defined and openssh_sshd_subsystem %}
+Subsystem {{ openssh_sshd_subsystem }}
+{% endif %}
+
+{% if openssh_sshd_config is defined and openssh_sshd_config -%}
+{{ openssh_sshd_config }}
+{% endif %}
+{% if openssh_sshd_group_config is defined and openssh_sshd_group_config -%}
+{{ openssh_sshd_group_config }}
+{% endif %}
+{% if openssh_sshd_host_config is defined and openssh_sshd_host_config -%}
+{{ openssh_sshd_host_config }}
+{% endif %}

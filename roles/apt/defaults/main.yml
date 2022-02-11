@@ -1,0 +1,46 @@
+apt_proxy: ''
+
+apt_repositories:
+  - "deb http://deb.debian.org/debian {{ ansible_distribution_release }} main contrib non-free"
+  - "deb http://deb.debian.org/debian-security {{ ansible_distribution_release }}/updates main contrib non-free"
+  - "deb http://deb.debian.org/debian {{ ansible_distribution_release }}-updates main contrib non-free"
+  - "deb http://deb.debian.org/debian {{ ansible_distribution_release }}-backports main contrib non-free"
+apt_group_repositories: []
+apt_host_repositories: []
+
+apt_packages: []
+apt_group_packages: []
+apt_host_packages: []
+
+apt_periodic_enable: no
+apt_periodic_max_age: 0
+apt_periodic_min_age: 0
+apt_periodic_max_size: 0
+apt_periodic_update_package_lists: 0
+apt_periodic_download_upgradeable_packages: 0
+apt_periodic_unattended_upgrade: 0
+apt_periodic_autoclean_interval: 0
+apt_periodic_clean_interval: 0
+apt_periodic_verbose: 0
+
+apt_unattended_upgrade_origins_pattern:
+  - 'origin=Debian,codename=${distro_codename},label=Debian'
+  - 'origin=Debian,codename=${distro_codename},label=Debian-Security'
+apt_unattended_upgrade_package_blacklist: []
+apt_unattended_upgrade_group_package_blacklist: []
+apt_unattended_upgrade_host_package_blacklist: []
+apt_unattended_upgrade_autofix_interrupted_dpkg: yes
+apt_unattended_upgrade_minimal_steps: yes
+apt_unattended_upgrade_install_on_shutdown: no
+apt_unattended_upgrade_mail: ''
+apt_unattended_upgrade_mail_only_on_error: no
+apt_unattended_upgrade_remove_unused_kernel_packages: yes
+apt_unattended_upgrade_remove_new_unused_dependencies: yes
+apt_unattended_upgrade_remove_unused_dependencies: no
+apt_unattended_upgrade_automatic_reboot: no
+apt_unattended_upgrade_automatic_reboot_with_users: yes
+apt_unattended_upgrade_automatic_reboot_time: 'now'
+apt_unattended_upgrade_syslog_enable: no
+apt_unattended_upgrade_syslog_facility: 'daemon'
+apt_unattended_upgrade_verbose: no
+apt_unattended_upgrade_debug: no

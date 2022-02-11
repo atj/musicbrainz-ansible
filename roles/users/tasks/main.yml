@@ -1,0 +1,98 @@
+# significant portions of this file were copied from
+# https://github.com/debops/debops/blob/master/ansible/roles/debops.users/tasks/users.yml
+
+- name: create groups
+  group:
+    name:   "{{ item.group  | d(item.name) }}"
+    gid:    "{{ item.gid    | d(omit) }}"
+    state:  present
+    system: "{{ item.system | d(omit) }}"
+  with_flattened:
+    - "{{ users_groups }}"
+    - "{{ users_group_groups }}"
+    - "{{ users_host_groups }}"
+    - "{{ users_accounts }}"
+    - "{{ users_group_accounts }}"
+    - "{{ users_host_accounts }}"
+  when: item.name|d() and item.name != "root" and item.state|d("present") != "absent"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: list available groups
+  getent: database=group
+
+- name: manage user accounts
+  user:
+    name:             "{{ item.name }}"
+    append:           "{{ item.append           | d(True) }}"
+    comment:          "{{ item.comment          | d(omit) }}"
+    create_home:      "{{ item.create_home      | d(omit) }}"
+    expires:          "{{ item.expires          | d(omit) }}"
+    force:            "{{ item.force            | d(omit) }}"
+    group:            "{{ item.group            | d(item.name) }}"
+    groups:           "{{ ((([ item.groups ] if item.groups is string else item.groups) | intersect(getent_group.keys())) | join(',')) if item.groups is defined else omit }}"
+    home:             "{{ item.home             | d(omit) }}"
+    move_home:        "{{ item.move_home        | d(omit) }}"
+    non_unique:       "{{ item.non_unique       | d(omit) }}"
+    password:         "{{ item.password         | d('*') }}"
+    remove:           "{{ item.remove           | d(omit) }}"
+    shell:            "{{ item.shell            | d(omit) }}"
+    skeleton:         "{{ item.skeleton         | d(omit) }}"
+    state:            "{{ item.state            | d('present') }}"
+    system:           "{{ item.system           | d(omit) }}"
+    uid:              "{{ item.uid              | d(omit) }}"
+    update_password:  "{{ item.update_password  | d('on_create') }}"
+  with_flattened:
+    - "{{ users_accounts }}"
+    - "{{ users_group_accounts }}"
+    - "{{ users_host_accounts }}"
+  when: item.name|d() and item.name != "root"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: configure authorized keys
+  authorized_key:
+    user:         "{{ item.0.name }}"
+    key:          "{{ lookup('file', __users_ssh_key_path + '/' + item.1.file) if item.1.file is defined else item.1.key }}"
+    state:        "{{ item.1.state | d('present') }}"
+    key_options:  "{{ (([ item.1.key_options ] if item.1.key_options is string else item.1.key_options) | join(',')) if item.1.key_options is defined else omit }}"
+  with_subelements:
+    - "{{ users_accounts + users_group_accounts + users_host_accounts }}"
+    - authorized_keys
+    - skip_missing: true
+  when: item.0.name|d() and item.0.state|d("present") != "absent"
+  loop_control:
+    label: "{{ item.0.name }}: {{ item.1.file | d(item.1.key) }}"
+
+- name: manage user home directories
+  file:
+    path:  '{{ item.home | d("~" + item.name) }}'
+    state: 'directory'
+    owner: '{{ item.home_owner | d(omit) }}'
+    group: '{{ item.home_group | d(omit) }}'
+    mode:  '{{ item.home_mode  | d(omit) }}'
+  with_flattened:
+    - "{{ users_accounts }}"
+    - "{{ users_group_accounts }}"
+    - "{{ users_host_accounts }}"
+  when: item.name|d() and item.name != 'root' and item.state|d('present') != 'absent' and item.createhome|d(true) and
+         (item.home_owner|d() or item.home_group|d() or item.home_mode|d())
+
+- name: delete groups
+  group:
+    name: "{{ item.group | d(item.name) }}"
+    state: absent
+  with_flattened:
+    - "{{ users_groups }}"
+    - "{{ users_group_groups }}"
+    - "{{ users_host_groups }}"
+    - "{{ users_accounts }}"
+    - "{{ users_group_accounts }}"
+    - "{{ users_host_accounts }}"
+  when: item.name|d() and item.name != "root" and item.state|d("present") == "absent" and
+         (item.group is undefined or item.group == item.name)
+  loop_control:
+    label: "{{ item.group | d(item.name) }}"
+
+- import_tasks: resources.yml
+  tags: [ 'users::resources' ]
