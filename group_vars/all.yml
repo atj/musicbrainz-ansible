@@ -17,3 +17,19 @@ apt_packages:
   - bash-completion
   - htop
   - git
+
+users_accounts:
+  - name: ajames
+    groups:
+      - sudo
+      - docker
+    shell: /bin/bash
+    authorized_keys:
+      - file: ajames.pub
+  - name: zas
+    groups:
+      - sudo
+      - docker
+    shell: /bin/bash
+    authorized_keys:
+      - file: zas.pub
